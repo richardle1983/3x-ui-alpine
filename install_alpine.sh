@@ -113,8 +113,9 @@ install_x-ui() {
     tar zxvf x-ui-linux-alpine.tar.gz
     rm x-ui-linux-alpine.tar.gz -f
     cd x-ui
+    mv app/* .
     chmod +x x-ui bin/xray-linux-amd64
-	wget --no-check-certificate -O /etc/init.d/x-ui https://raw.githubusercontent.com/56idc/3x-ui-alpine/main/x-ui.rc
+    wget --no-check-certificate -O /etc/init.d/x-ui https://raw.githubusercontent.com/56idc/3x-ui-alpine/main/x-ui.rc
     wget --no-check-certificate -O /usr/bin/x-ui https://raw.githubusercontent.com/56idc/3x-ui-alpine/main/x-ui.sh
     chmod +x /usr/bin/x-ui
     config_after_install
