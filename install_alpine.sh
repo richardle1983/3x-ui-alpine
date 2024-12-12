@@ -101,13 +101,16 @@ install_x-ui() {
             exit 1
         fi
     else
-		echo -e "${red}Download x-ui $1 failed, please check if the version exists ${plain}"
+	echo -e "${red}Download x-ui $1 failed, please check if the version exists ${plain}"
         exit 1
     fi
 
     if [[ -e /usr/local/x-ui/ ]]; then
         rc-service x-ui stop
+	rc-service fail2ban stop
         rm /usr/local/x-ui/ -rf
+	rm /usr/bin/x-ui
+ 	rm /etc/init.d/x-ui
     fi
 
     tar zxvf x-ui-linux-alpine.tar.gz
