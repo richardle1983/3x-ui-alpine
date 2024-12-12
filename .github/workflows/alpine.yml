@@ -21,7 +21,7 @@ jobs:
         docker cp 3x-ui:/usr/bin/x-ui ./app/x-ui.sh
     - name: Package
       run: tar -zcvf x-ui-linux-alpine.tar.gz ./app
-	  
+
     - name: Upload files to Artifacts
       uses: actions/upload-artifact@v4
       with:
