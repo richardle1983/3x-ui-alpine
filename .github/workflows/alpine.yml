@@ -33,5 +33,5 @@ jobs:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         tag: ${{ github.ref }}
         file: x-ui-linux-alpine.tar.gz
-        asset_name: x-ui-linux-alpine
+        asset_name: x-ui-linux-alpine.tar.gz
         prerelease: true
