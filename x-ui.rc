@@ -2,9 +2,9 @@
 
 name="x-ui"
 
-command="/usr/local/x-ui/DockerEntrypoint.sh"
+command="/usr/local/x-ui/x-ui"
 
-#command_background="yes"
+command_background="yes"
 
 description="Custom service for ${name}"
 
