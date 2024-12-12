@@ -11,7 +11,7 @@ cur_dir=$(pwd)
 [[ $EUID -ne 0 ]] && echo -e "${red}Fatal error: ${plain} Please run this script with root privilege \n " && exit 1
 
 install_base() {
-	apk add --no-cache --update ca-certificates tzdata fail2ban
+	apk add --no-cache --update ca-certificates tzdata fail2ban bash
 	rm -f /etc/fail2ban/jail.d/alpine-ssh.conf
 	cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
 	sed -i "s/^\[ssh\]$/&\nenabled = false/" /etc/fail2ban/jail.local
