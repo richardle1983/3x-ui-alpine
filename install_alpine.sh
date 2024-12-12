@@ -124,9 +124,7 @@ install_x-ui() {
     wget --no-check-certificate -O /usr/bin/x-ui https://raw.githubusercontent.com/56idc/3x-ui-alpine/main/x-ui.sh
     chmod +x /usr/bin/x-ui
     config_after_install
-	
 	rc-update add x-ui
-	rc-service --list
 	rc-service x-ui start
     echo -e "${green}x-ui ${tag_version}${plain} installation finished, it is running now..."
     echo -e ""
