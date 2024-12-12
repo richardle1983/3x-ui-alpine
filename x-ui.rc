@@ -2,7 +2,7 @@
 
 name="x-ui"
 
-command="./usr/local/x-ui/DockerEntrypoint.sh"
+command="/usr/local/x-ui/DockerEntrypoint.sh"
 
 #command_background="yes"
 
