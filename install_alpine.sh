@@ -107,7 +107,6 @@ install_x-ui() {
 
     if [[ -e /usr/local/x-ui/ ]]; then
         rc-service x-ui stop
-	rc-service fail2ban stop
         rm /usr/local/x-ui/ -rf
 	rm /usr/bin/x-ui
  	rm /etc/init.d/x-ui
