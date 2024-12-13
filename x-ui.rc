@@ -2,7 +2,7 @@
 
 name="x-ui"
 
-command="/usr/local/x-ui/x-ui"
+command="/app/x-ui"
 
 command_background="yes"
 
