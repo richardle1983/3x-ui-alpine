@@ -584,7 +584,7 @@ check_uninstall() {
 
 check_install() {
     check_status
-    if [[ $? == 0 ]]; then
+    if [[ $? == 1 ]]; then
         echo ""
         LOGE "Please install the panel first"
         if [[ $# == 0 ]]; then
