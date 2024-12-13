@@ -123,6 +123,7 @@ install_x-ui() {
 	rm /usr/bin/x-ui
  	rm /etc/init.d/x-ui
         rm /etc/x-ui/ -rf
+	fail2ban-client -x stop
     fi
 
     tar zxvf x-ui-linux-alpine.tar.gz
@@ -136,9 +137,9 @@ install_x-ui() {
     chmod +x /etc/init.d/x-ui
     wget --no-check-certificate -O /usr/bin/x-ui https://raw.githubusercontent.com/56idc/3x-ui-alpine/main/x-ui.sh
     chmod +x /usr/bin/x-ui
-    wget --no-check-certificate -O /usr/local/x-ui/DockerEntrypoint.sh https://raw.githubusercontent.com/56idc/3x-ui-alpine/main/DockerEntrypoint.sh
-    chmod +x /usr/local/x-ui/DockerEntrypoint.sh
-    ./DockerEntrypoint.sh
+    export XRAY_VMESS_AEAD_FORCED="false"
+    fail2ban-client -x start
+    nohup ./x-ui >/dev/null 2>&1 &
     echo -e "${green}x-ui ${tag_version}${plain} installation finished, it is running now..."
     echo -e ""
     echo -e "x-ui control menu usages: "
