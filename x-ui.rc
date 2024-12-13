@@ -1,6 +1,6 @@
 #!/sbin/openrc-run
 
-command="/app/x-ui"
+command="/usr/local/x-ui/x-ui"
 command_background=true
 pidfile="/run/x-ui.pid"
 description="Custom service for x-ui"
