@@ -3,8 +3,9 @@
 name="x-ui"
 
 command="/app/x-ui"
-
-command_background="yes"
+command_args_background="--daemon"
+pidfile="/run/x-ui.pid"
+command_background=true
 output_log="/var/log/x-ui.log"
 error_log="/var/log/x-ui.err"
 description="Custom service for ${name}"
