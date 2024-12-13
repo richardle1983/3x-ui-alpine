@@ -120,6 +120,7 @@ install_x-ui() {
 
     if [[ -e /app/bin/ ]]; then
 	rc-service x-ui stop
+ 	rc-update del x-ui
 	rm /app/* -rf
 	rm /usr/bin/x-ui
  	rm /etc/init.d/x-ui
