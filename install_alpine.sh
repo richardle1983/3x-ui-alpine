@@ -124,8 +124,8 @@ install_x-ui() {
 
     if [[ -e /app/bin/ ]]; then
       echo "Delete old version!!!"
-      rc-service x-ui stop
       rc-update del x-ui
+      rc-service x-ui stop
       fail2ban-client -x start
       rm /app/bin -rf
       rm /app/x-ui
@@ -145,8 +145,8 @@ install_x-ui() {
     config_after_install
     export XRAY_VMESS_AEAD_FORCED="false"
     fail2ban-client -x start
+    rc-update add x-ui default
     rc-service x-ui start
-    rc-update add x-ui
     echo -e "${green}x-ui ${tag_version}${plain} installation finished, it is running now..."
     echo -e ""
     echo -e "x-ui control menu usages: "
