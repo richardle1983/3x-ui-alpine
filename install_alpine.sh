@@ -126,7 +126,7 @@ install_x-ui() {
       echo "Delete old version!!!"
       rc-update del x-ui
       rc-service x-ui stop
-      fail2ban-client -x start
+      fail2ban-client -x stop
       rm /app/bin -rf
       rm /app/x-ui
       rm /usr/bin/x-ui
