@@ -120,7 +120,7 @@ install_x-ui() {
 
     if [[ -e /app/bin/ ]]; then
 	rc-service x-ui stop
- 	rc-update del x-ui
+        rc-update del x-ui
 	rm /app/bin -rf
         rm /app/x-ui
 	rm /usr/bin/x-ui
@@ -131,7 +131,7 @@ install_x-ui() {
 
     tar zxvf x-ui-linux-alpine.tar.gz
     rm x-ui-linux-alpine.tar.gz -f
-	mv x-ui ./tmp
+    mv x-ui ./tmp
     mv tmp/app/* .
     rm -r tmp
     rm DockerEntrypoint.sh
@@ -140,11 +140,11 @@ install_x-ui() {
     chmod +x /etc/init.d/x-ui
     wget --no-check-certificate -O /usr/bin/x-ui https://raw.githubusercontent.com/56idc/3x-ui-alpine/main/x-ui.sh
     chmod +x /usr/bin/x-ui
-	config_after_install
+    config_after_install
     export XRAY_VMESS_AEAD_FORCED="false"
     fail2ban-client -x start
-	rc-service x-ui start
-	rc-update add x-ui
+    rc-service x-ui start
+    rc-update add x-ui
     echo -e "${green}x-ui ${tag_version}${plain} installation finished, it is running now..."
     echo -e ""
     echo -e "x-ui control menu usages: "
