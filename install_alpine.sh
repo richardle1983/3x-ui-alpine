@@ -128,9 +128,9 @@ install_x-ui() {
 
     tar zxvf x-ui-linux-alpine.tar.gz
     rm x-ui-linux-alpine.tar.gz -f
-    cd x-ui
-    mv app/x-ui/* .
-    rm -r app
+	mv x-ui ./tmp
+    mv tmp/app/* .
+    rm -r tmp
     rm DockerEntrypoint.sh
     chmod +x x-ui bin/xray-linux-amd64
     wget --no-check-certificate -O /etc/init.d/x-ui https://raw.githubusercontent.com/56idc/3x-ui-alpine/main/x-ui.rc
