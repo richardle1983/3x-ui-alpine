@@ -130,7 +130,7 @@ install_x-ui() {
       rm /app/bin -rf
       rm /app/x-ui
       rm /usr/bin/x-ui
-      rm /ext/init.d/x-ui
+      rm /etc/init.d/x-ui
     fi
 
     tar zxvf x-ui-linux-alpine.tar.gz
@@ -142,6 +142,8 @@ install_x-ui() {
     chmod +x x-ui bin/xray-linux-amd64
     wget --no-check-certificate -O /usr/bin/x-ui https://raw.githubusercontent.com/56idc/3x-ui-alpine/main/x-ui.sh
     chmod +x /usr/bin/x-ui
+    wget --no-check-certificate -O /etc/init.d/x-ui https://raw.githubusercontent.com/56idc/3x-ui-alpine/main/x-ui.rc
+    chmod +x /etc/init.d/x-ui
     config_after_install
     export XRAY_VMESS_AEAD_FORCED="false"
     fail2ban-client -x start
