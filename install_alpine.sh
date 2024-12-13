@@ -118,15 +118,16 @@ install_x-ui() {
         fi
     fi
 
-    if [[ -e /app/bin/ ]]; then
-	rc-service x-ui stop
-        rc-update del x-ui
-	rm /app/bin -rf
-        rm /app/x-ui
-	rm /usr/bin/x-ui
- 	rm /etc/init.d/x-ui
-	rm /etc/x-ui/ -rf
-	fail2ban-client -x stop
+    if pgrep -f x-ui > /dev/null; then
+      pgrep -f x-ui | xargs -r kill -9
+      rc-service x-ui stop
+      rc-update del x-ui
+      rm /app/bin -rf
+      rm /app/x-ui
+      rm /usr/bin/x-ui
+      rm /etc/init.d/x-ui
+      rm /etc/x-ui/ -rf
+      fail2ban-client -x stop
     fi
 
     tar zxvf x-ui-linux-alpine.tar.gz
@@ -143,8 +144,8 @@ install_x-ui() {
     config_after_install
     export XRAY_VMESS_AEAD_FORCED="false"
     fail2ban-client -x start
-    rc-service x-ui start
     rc-update add x-ui
+    rc-service x-ui start
     echo -e "${green}x-ui ${tag_version}${plain} installation finished, it is running now..."
     echo -e ""
     echo -e "x-ui control menu usages: "
