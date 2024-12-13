@@ -123,6 +123,7 @@ install_x-ui() {
     fi
 
     if [[ -e /app/bin/ ]]; then
+      echo "Delete old version!!!"
       rc-service x-ui stop
       rc-update del x-ui
       pgrep -f x-ui | xargs -r kill -9
