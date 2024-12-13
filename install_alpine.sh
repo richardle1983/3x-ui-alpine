@@ -130,7 +130,7 @@ install_x-ui() {
       rm /app/bin -rf
       rm /app/x-ui
       rm /usr/bin/x-ui
-      rm /etx/init.d/x-ui
+      rm /ext/init.d/x-ui
     fi
 
     tar zxvf x-ui-linux-alpine.tar.gz
