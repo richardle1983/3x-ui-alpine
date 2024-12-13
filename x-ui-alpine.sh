@@ -496,8 +496,8 @@ check_status() {
     if [[ ! -f /etc/init.d/x-ui ]]; then
         return 2
     fi
-    temp=$(rc-service x-ui status | grep started)
-    if [[ "${temp}" == "* status: started" ]]; then
+    temp=$(rc-service x-ui status | grep started | awk '{print $3}' | cut -d ":" -f2)
+    if [[ "${temp}" == "started" ]]; then
         return 0
     else
         return 1
