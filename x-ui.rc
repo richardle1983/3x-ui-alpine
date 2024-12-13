@@ -2,7 +2,7 @@
 
 name="x-ui"
 
-command="nohup /app/x-ui >/var/log/x-ui.log"
+command="nohup /app/x-ui"
 
 command_background="yes"
 
