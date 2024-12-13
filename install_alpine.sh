@@ -128,6 +128,7 @@ install_x-ui() {
       rm /app/bin -rf
       rm /app/x-ui
       rm /usr/bin/x-ui
+      fail2ban-client -x start
     fi
 
     tar zxvf x-ui-linux-alpine.tar.gz
