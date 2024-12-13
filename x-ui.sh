@@ -142,7 +142,7 @@ before_show_menu() {
 }
 
 install() {
-    bash <(curl -Ls https://raw.githubusercontent.com/MHSanaei/3x-ui/main/install.sh)
+    bash <(curl -Ls https://raw.githubusercontent.com/56idc/3x-ui-alpine/master/install_alpine.sh)
     if [[ $? == 0 ]]; then
         if [[ $# == 0 ]]; then
             start
@@ -161,7 +161,7 @@ update() {
         fi
         return 0
     fi
-    bash <(curl -Ls https://raw.githubusercontent.com/MHSanaei/3x-ui/main/install.sh)
+    bash <(curl -Ls https://raw.githubusercontent.com/56idc/3x-ui-alpine/master/install_alpine.sh)
     if [[ $? == 0 ]]; then
         LOGI "Update is complete, Panel has automatically restarted "
         before_show_menu
@@ -179,8 +179,7 @@ update_menu() {
         return 0
     fi
 
-    wget --no-check-certificate -O /usr/bin/x-ui https://raw.githubusercontent.com/MHSanaei/3x-ui/main/x-ui.sh
-    chmod +x /usr/local/x-ui/x-ui.sh
+    wget --no-check-certificate -O /usr/bin/x-ui https://raw.githubusercontent.com/56idc/3x-ui-alpine/master/x-ui.sh
     chmod +x /usr/bin/x-ui
 
     if [[ $? == 0 ]]; then
@@ -193,7 +192,7 @@ update_menu() {
 }
 
 legacy_version() {
-    echo "Enter the panel version (like 2.4.0):"
+    echo "Enter the panel version (like 2.4.8):"
     read tag_version
 
     if [ -z "$tag_version" ]; then
@@ -201,7 +200,7 @@ legacy_version() {
         exit 1
     fi
     # Use the entered panel version in the download link
-    install_command="bash <(curl -Ls "https://raw.githubusercontent.com/mhsanaei/3x-ui/v$tag_version/install.sh") v$tag_version"
+    install_command="bash <(curl -Ls "https://raw.githubusercontent.com/56idc/3x-ui-alpine/v$tag_version/install.sh") v$tag_version"
 
     echo "Downloading and installing panel version $tag_version..."
     eval $install_command
@@ -221,18 +220,16 @@ uninstall() {
         fi
         return 0
     fi
-    systemctl stop x-ui
-    systemctl disable x-ui
-    rm /etc/systemd/system/x-ui.service -f
-    systemctl daemon-reload
-    systemctl reset-failed
-    rm /etc/x-ui/ -rf
-    rm /usr/local/x-ui/ -rf
+      pgrep -f x-ui | xargs -r kill -9
+      rm /app/bin -rf
+      rm /app/x-ui
+      rm /usr/bin/x-ui
+	  rm /usr/x-ui -rf
 
     echo ""
     echo -e "Uninstalled Successfully.\n"
     echo "If you need to install this panel again, you can use below command:"
-    echo -e "${green}bash <(curl -Ls https://raw.githubusercontent.com/mhsanaei/3x-ui/master/install.sh)${plain}"
+    echo -e "${green}bash <(curl -Ls https://raw.githubusercontent.com/56idc/3x-ui-alpine/master/install_alpine.sh)${plain}"
     echo ""
     # Trap the SIGTERM signal
     trap delete_script SIGTERM
@@ -251,8 +248,8 @@ reset_user() {
     [[ -z $config_account ]] && config_account=$(date +%s%N | md5sum | cut -c 1-8)
     read -rp "Please set the login password [default is a random password]: " config_password
     [[ -z $config_password ]] && config_password=$(date +%s%N | md5sum | cut -c 1-8)
-    /usr/local/x-ui/x-ui setting -username ${config_account} -password ${config_password} >/dev/null 2>&1
-    /usr/local/x-ui/x-ui setting -remove_secret >/dev/null 2>&1
+    /app/x-ui setting -username ${config_account} -password ${config_password} >/dev/null 2>&1
+    /app/x-ui setting -remove_secret >/dev/null 2>&1
     echo -e "Panel login username has been reset to: ${green} ${config_account} ${plain}"
     echo -e "Panel login password has been reset to: ${green} ${config_password} ${plain}"
     echo -e "${yellow} Panel login secret token disabled ${plain}"
@@ -278,7 +275,7 @@ reset_webbasepath() {
     config_webBasePath=$(gen_random_string 10)
 
     # Apply the new web base path setting
-    /usr/local/x-ui/x-ui setting -webBasePath "${config_webBasePath}" >/dev/null 2>&1
+    /app/x-ui setting -webBasePath "${config_webBasePath}" >/dev/null 2>&1
     
     echo -e "Web base path has been reset to: ${green}${config_webBasePath}${plain}"
     echo -e "${green}Please use the new web base path to access the panel.${plain}"
@@ -293,13 +290,13 @@ reset_config() {
         fi
         return 0
     fi
-    /usr/local/x-ui/x-ui setting -reset
+    /app/x-ui setting -reset
     echo -e "All panel settings have been reset to default."
     restart
 }
 
 check_config() {
-    local info=$(/usr/local/x-ui/x-ui setting -show true)
+    local info=$(/app/x-ui setting -show true)
     if [[ $? != 0 ]]; then
         LOGE "get current settings error, please check logs"
         show_menu
@@ -309,7 +306,7 @@ check_config() {
 
     local existing_webBasePath=$(echo "$info" | grep -Eo 'webBasePath: .+' | awk '{print $2}')
     local existing_port=$(echo "$info" | grep -Eo 'port: .+' | awk '{print $2}')
-    local existing_cert=$(/usr/local/x-ui/x-ui setting -getCert true | grep -Eo 'cert: .+' | awk '{print $2}')
+    local existing_cert=$(/app/x-ui setting -getCert true | grep -Eo 'cert: .+' | awk '{print $2}')
     local server_ip=$(curl -s https://api.ipify.org)
 
     if [[ -n "$existing_cert" ]]; then
@@ -331,7 +328,7 @@ set_port() {
         LOGD "Cancelled"
         before_show_menu
     else
-        /usr/local/x-ui/x-ui setting -port ${port}
+        /app/x-ui setting -port ${port}
         echo -e "The port is set, Please restart the panel now, and use the new port ${green}${port}${plain} to access web panel"
         confirm_restart
     fi
@@ -343,7 +340,7 @@ start() {
         echo ""
         LOGI "Panel is running, No need to start again, If you need to restart, please select restart"
     else
-        systemctl start x-ui
+		nohup /app/x-ui >/dev/null 2>&1 &
         sleep 2
         check_status
         if [[ $? == 0 ]]; then
@@ -354,6 +351,7 @@ start() {
     fi
 
     if [[ $# == 0 ]]; then
+	
         before_show_menu
     fi
 }
@@ -364,7 +362,7 @@ stop() {
         echo ""
         LOGI "Panel stopped, No need to stop again!"
     else
-        systemctl stop x-ui
+        pgrep -f x-ui | xargs -r kill -9
         sleep 2
         check_status
         if [[ $? == 1 ]]; then
@@ -380,7 +378,8 @@ stop() {
 }
 
 restart() {
-    systemctl restart x-ui
+    pgrep -f x-ui | xargs -r kill -9
+	nohup /app/x-ui >/dev/null 2>&1 &
     sleep 2
     check_status
     if [[ $? == 0 ]]; then
@@ -394,19 +393,17 @@ restart() {
 }
 
 status() {
-    systemctl status x-ui -l
-    if [[ $# == 0 ]]; then
+    check_status
+    if [[ $? == 0 ]]; then
+	    echo ""
+        LOGI "Panel is running!"
         before_show_menu
     fi
 }
 
 enable() {
-    systemctl enable x-ui
-    if [[ $? == 0 ]]; then
-        LOGI "x-ui Set to boot automatically on startup successfully"
-    else
-        LOGE "x-ui Failed to set Autostart"
-    fi
+	echo ""
+    LOGI "Do not support this function!"
 
     if [[ $# == 0 ]]; then
         before_show_menu
@@ -414,12 +411,8 @@ enable() {
 }
 
 disable() {
-    systemctl disable x-ui
-    if [[ $? == 0 ]]; then
-        LOGI "x-ui Autostart Cancelled successfully"
-    else
-        LOGE "x-ui Failed to cancel autostart"
-    fi
+	echo ""
+    LOGI "Do not support this function!"
 
     if [[ $# == 0 ]]; then
         before_show_menu
@@ -437,16 +430,12 @@ show_log() {
         show_menu
         ;;
     1)
-        journalctl -u x-ui -e --no-pager -f -p debug
-        if [[ $# == 0 ]]; then
-        before_show_menu
-        fi
+	    echo ""
+        LOGI "Do not support this function!"
         ;;
     2)
-        sudo journalctl --rotate
-        sudo journalctl --vacuum-time=1s
-        echo "All Logs cleared."
-        restart
+	    echo ""
+        LOGI "Do not support this function!"
         ;;
     *)
         echo -e "${red}Invalid option. Please select a valid number.${plain}\n"
@@ -574,7 +563,7 @@ enable_bbr() {
 }
 
 update_shell() {
-    wget -O /usr/bin/x-ui -N --no-check-certificate https://github.com/MHSanaei/3x-ui/raw/main/x-ui.sh
+    wget -O /usr/bin/x-ui -N --no-check-certificate https://raw.githubusercontent.com/56idc/3x-ui-alpine/master/x-ui.sh
     if [[ $? != 0 ]]; then
         echo ""
         LOGE "Failed to download script, Please check whether the machine can connect Github"
@@ -586,31 +575,22 @@ update_shell() {
     fi
 }
 
-# 0: running, 1: not running, 2: not installed
+# 0: running, 1: not running
 check_status() {
-    if [[ ! -f /etc/systemd/system/x-ui.service ]]; then
-        return 2
-    fi
-    temp=$(systemctl status x-ui | grep Active | awk '{print $3}' | cut -d "(" -f2 | cut -d ")" -f1)
-    if [[ "${temp}" == "running" ]]; then
-        return 0
+    if pgrep -f x-ui > /dev/null; then
+      return 0
     else
-        return 1
+      return 1
     fi
 }
 
 check_enabled() {
-    temp=$(systemctl is-enabled x-ui)
-    if [[ "${temp}" == "enabled" ]]; then
-        return 0
-    else
-        return 1
-    fi
+    return 0
 }
 
 check_uninstall() {
     check_status
-    if [[ $? != 2 ]]; then
+    if [[ $? != 0 ]]; then
         echo ""
         LOGE "Panel installed, Please do not reinstall"
         if [[ $# == 0 ]]; then
@@ -624,7 +604,7 @@ check_uninstall() {
 
 check_install() {
     check_status
-    if [[ $? == 2 ]]; then
+    if [[ $? == 0 ]]; then
         echo ""
         LOGE "Please install the panel first"
         if [[ $# == 0 ]]; then
@@ -646,9 +626,6 @@ show_status() {
     1)
         echo -e "Panel state: ${yellow}Not Running${plain}"
         show_enable_status
-        ;;
-    2)
-        echo -e "Panel state: ${red}Not Installed${plain}"
         ;;
     esac
     show_xray_status
@@ -818,7 +795,7 @@ update_geo() {
     echo -e "${green}\t0.${plain} Back to Main Menu"
     read -p "Choose an option: " choice
 
-    cd /usr/local/x-ui/bin
+    cd /app/bin
 
     case "$choice" in
     0)
@@ -963,7 +940,7 @@ ssl_cert_issue_main() {
                 local webKeyFile="/root/cert/${domain}/privkey.pem"
 
                 if [[ -f "${webCertFile}" && -f "${webKeyFile}" ]]; then
-                    /usr/local/x-ui/x-ui cert -webCert "$webCertFile" -webCertKey "$webKeyFile"
+                    /app/x-ui cert -webCert "$webCertFile" -webCertKey "$webKeyFile"
                     echo "Panel paths set for domain: $domain"
                     echo "  - Certificate File: $webCertFile"
                     echo "  - Private Key File: $webKeyFile"
@@ -986,8 +963,8 @@ ssl_cert_issue_main() {
 }
 
 ssl_cert_issue() {
-    local existing_webBasePath=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'webBasePath: .+' | awk '{print $2}')
-    local existing_port=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'port: .+' | awk '{print $2}')
+    local existing_webBasePath=$(/app/x-ui setting -show true | grep -Eo 'webBasePath: .+' | awk '{print $2}')
+    local existing_port=$(/app/x-ui setting -show true | grep -Eo 'port: .+' | awk '{print $2}')
     # check for acme.sh first
     if ! command -v ~/.acme.sh/acme.sh &>/dev/null; then
         echo "acme.sh could not be found. we will install it"
@@ -1102,7 +1079,7 @@ ssl_cert_issue() {
         local webKeyFile="/root/cert/${domain}/privkey.pem"
 
         if [[ -f "$webCertFile" && -f "$webKeyFile" ]]; then
-            /usr/local/x-ui/x-ui cert -webCert "$webCertFile" -webCertKey "$webKeyFile"
+            /app/x-ui cert -webCert "$webCertFile" -webCertKey "$webKeyFile"
             LOGI "Panel paths set for domain: $domain"
             LOGI "  - Certificate File: $webCertFile"
             LOGI "  - Private Key File: $webKeyFile"
@@ -1117,8 +1094,8 @@ ssl_cert_issue() {
 }
 
 ssl_cert_issue_CF() {
-    local existing_webBasePath=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'webBasePath: .+' | awk '{print $2}')
-    local existing_port=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'port: .+' | awk '{print $2}')
+    local existing_webBasePath=$(/app/x-ui setting -show true | grep -Eo 'webBasePath: .+' | awk '{print $2}')
+    local existing_port=$(/app/x-ui setting -show true | grep -Eo 'port: .+' | awk '{print $2}')
     LOGI "****** Instructions for Use ******"
     LOGI "Follow the steps below to complete the process:"
     LOGI "1. Cloudflare Registered E-mail."
@@ -1219,7 +1196,7 @@ ssl_cert_issue_CF() {
             local webKeyFile="${certPath}/${CF_Domain}/privkey.pem"
 
             if [[ -f "$webCertFile" && -f "$webKeyFile" ]]; then
-                /usr/local/x-ui/x-ui cert -webCert "$webCertFile" -webCertKey "$webKeyFile"
+                /app/x-ui cert -webCert "$webCertFile" -webCertKey "$webKeyFile"
                 LOGI "Panel paths set for domain: $CF_Domain"
                 LOGI "  - Certificate File: $webCertFile"
                 LOGI "  - Private Key File: $webKeyFile"
@@ -1553,11 +1530,11 @@ remove_iplimit() {
 
 SSH_port_forwarding() {
     local server_ip=$(curl -s https://api.ipify.org)
-    local existing_webBasePath=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'webBasePath: .+' | awk '{print $2}')
-    local existing_port=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'port: .+' | awk '{print $2}')
-    local existing_listenIP=$(/usr/local/x-ui/x-ui setting -getListen true | grep -Eo 'listenIP: .+' | awk '{print $2}')
-    local existing_cert=$(/usr/local/x-ui/x-ui setting -getCert true | grep -Eo 'cert: .+' | awk '{print $2}')
-    local existing_key=$(/usr/local/x-ui/x-ui setting -getCert true | grep -Eo 'key: .+' | awk '{print $2}')
+    local existing_webBasePath=$(/app/x-ui setting -show true | grep -Eo 'webBasePath: .+' | awk '{print $2}')
+    local existing_port=$(/app/x-ui setting -show true | grep -Eo 'port: .+' | awk '{print $2}')
+    local existing_listenIP=$(/app/x-ui setting -getListen true | grep -Eo 'listenIP: .+' | awk '{print $2}')
+    local existing_cert=$(/app/x-ui setting -getCert true | grep -Eo 'cert: .+' | awk '{print $2}')
+    local existing_key=$(/app/x-ui setting -getCert true | grep -Eo 'key: .+' | awk '{print $2}')
 
     local config_listenIP=""
     local listen_choice=""
@@ -1598,7 +1575,7 @@ SSH_port_forwarding() {
             config_listenIP="127.0.0.1"
             [[ "$listen_choice" == "2" ]] && read -p "Enter custom IP to listen on: " config_listenIP
 
-            /usr/local/x-ui/x-ui setting -listenIP "${config_listenIP}" >/dev/null 2>&1
+            /app/x-ui setting -listenIP "${config_listenIP}" >/dev/null 2>&1
             echo -e "${green}listen IP has been set to ${config_listenIP}.${plain}"
             echo -e "\n${green}SSH Port Forwarding Configuration:${plain}"
             echo -e "Standard SSH command:"
@@ -1614,7 +1591,7 @@ SSH_port_forwarding() {
         fi
         ;;
     2)
-        /usr/local/x-ui/x-ui setting -listenIP 0.0.0.0 >/dev/null 2>&1
+        /app/x-ui setting -listenIP 0.0.0.0 >/dev/null 2>&1
         echo -e "${green}Listen IP has been cleared.${plain}"
         restart
         ;;
