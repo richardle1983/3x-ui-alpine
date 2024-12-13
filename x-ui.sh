@@ -519,6 +519,8 @@ disable_bbr() {
     else
         echo -e "${red}Failed to replace BBR with CUBIC. Please check your system configuration.${plain}"
     fi
+
+
 }
 
 enable_bbr() {
@@ -527,38 +529,16 @@ enable_bbr() {
         before_show_menu
     fi
 
-    # Check the OS and install necessary packages
-    case "${release}" in
-    ubuntu | debian | armbian)
-        apt-get update && apt-get install -yqq --no-install-recommends ca-certificates
-        ;;
-    centos | almalinux | rocky | ol)
-        yum -y update && yum -y install ca-certificates
-        ;;
-    fedora | amzn)
-        dnf -y update && dnf -y install ca-certificates
-        ;;
-    arch | manjaro | parch)
-        pacman -Sy --noconfirm ca-certificates
-        ;;
-    *)
-        echo -e "${red}Unsupported operating system. Please check the script and install the necessary packages manually.${plain}\n"
-        exit 1
-        ;;
-    esac
-
-    # Enable BBR
-    echo "net.core.default_qdisc=fq" | tee -a /etc/sysctl.conf
-    echo "net.ipv4.tcp_congestion_control=bbr" | tee -a /etc/sysctl.conf
-
-    # Apply changes
-    sysctl -p
+echo "tcp_bbr" >> /etc/modules && modprobe tcp_bbr
+echo "net.ipv4.tcp_congestion_control=bbr" >> /etc/sysctl.conf
+echo "net.core.default_qdisc=fq" >> /etc/sysctl.conf
+sysctl -p
 
     # Verify that BBR is enabled
-    if [[ $(sysctl net.ipv4.tcp_congestion_control | awk '{print $3}') == "bbr" ]]; then
-        echo -e "${green}BBR has been enabled successfully.${plain}"
+	if test -z "$(lsmod | grep bbrxxx)"; then
+	  echo -e "${red}Failed to enable BBR. Please check your system configuration.${plain}"
     else
-        echo -e "${red}Failed to enable BBR. Please check your system configuration.${plain}"
+	  echo echo -e "${green}BBR has been enabled successfully.${plain}"
     fi
 }
 
