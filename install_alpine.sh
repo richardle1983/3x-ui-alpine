@@ -119,10 +119,10 @@ install_x-ui() {
     fi
 
     if [[ -e /usr/local/x-ui/ ]]; then
-        rc-service x-ui stop
         rm /usr/local/x-ui/ -rf
 	rm /usr/bin/x-ui
  	rm /etc/init.d/x-ui
+        rm /etc/x-ui/ -rf
     fi
 
     tar zxvf x-ui-linux-alpine.tar.gz
@@ -139,8 +139,7 @@ install_x-ui() {
     wget --no-check-certificate -O /usr/local/x-ui/DockerEntrypoint.sh https://raw.githubusercontent.com/56idc/3x-ui-alpine/main/DockerEntrypoint.sh
     chmod +x /usr/local/x-ui/DockerEntrypoint.sh
     config_after_install
-	rc-update add x-ui
-	rc-service x-ui start
+    ./DockerEntrypoint.sh
     echo -e "${green}x-ui ${tag_version}${plain} installation finished, it is running now..."
     echo -e ""
     echo -e "x-ui control menu usages: "
