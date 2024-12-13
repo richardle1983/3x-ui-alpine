@@ -2,7 +2,7 @@
 
 name="x-ui"
 
-command="exec /app/x-ui"
+command="nohup /app/x-ui >/dev/null 2>&1 &"
 
 command_background="yes"
 
