@@ -1,15 +1,10 @@
 #!/sbin/openrc-run
 
-name="x-ui"
-
 command="/app/x-ui"
-command_args_background="--daemon"
-pidfile="/run/x-ui.pid"
 command_background=true
-output_log="/var/log/x-ui.log"
-error_log="/var/log/x-ui.err"
-description="Custom service for ${name}"
-
+pidfile="/run/x-ui.pid"
+description="Custom service for x-ui"
+procname="x-ui"
 depend() {
     need net
 }
