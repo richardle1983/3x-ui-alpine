@@ -120,8 +120,6 @@ install_x-ui() {
 
     if [[ -e /app/bin/ ]]; then
       pgrep -f x-ui | xargs -r kill -9
-      rc-service x-ui stop
-      rc-update del x-ui
       rm /app/bin -rf
       rm /app/x-ui
       rm /usr/bin/x-ui
@@ -136,15 +134,12 @@ install_x-ui() {
     rm -r tmp
     rm DockerEntrypoint.sh
     chmod +x x-ui bin/xray-linux-amd64
-    wget --no-check-certificate -O /etc/init.d/x-ui https://raw.githubusercontent.com/56idc/3x-ui-alpine/main/x-ui.rc
-    chmod +x /etc/init.d/x-ui
     wget --no-check-certificate -O /usr/bin/x-ui https://raw.githubusercontent.com/56idc/3x-ui-alpine/main/x-ui.sh
     chmod +x /usr/bin/x-ui
     config_after_install
     export XRAY_VMESS_AEAD_FORCED="false"
     fail2ban-client -x start
-    rc-update add x-ui
-    rc-service x-ui start
+    nohup /app/x-ui >/dev/null 2>&1 &
     echo -e "${green}x-ui ${tag_version}${plain} installation finished, it is running now..."
     echo -e ""
     echo -e "x-ui control menu usages: "
