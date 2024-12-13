@@ -126,7 +126,6 @@ install_x-ui() {
       rm /app/x-ui
       rm /usr/bin/x-ui
       rm /etc/init.d/x-ui
-      rm /etc/x-ui/ -rf
       fail2ban-client -x stop
     fi
 
