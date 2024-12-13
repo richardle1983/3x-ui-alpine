@@ -132,7 +132,7 @@ install_x-ui() {
     rm x-ui/app -rf
     rm x-ui/DockerEntrypoint.sh
     chmod +x x-ui/x-ui x-ui/bin/xray-linux-amd64
-    wget --no-check-certificate -O /usr/bin/x-ui https://raw.githubusercontent.com/56idc/3x-ui-alpine/main/x-ui.sh
+    wget --no-check-certificate -O /usr/bin/x-ui https://raw.githubusercontent.com/56idc/3x-ui-alpine/main/x-ui-alpine.sh
     chmod +x /usr/bin/x-ui
     wget --no-check-certificate -O /etc/init.d/x-ui https://raw.githubusercontent.com/56idc/3x-ui-alpine/main/x-ui.rc
     chmod +x /etc/init.d/x-ui
