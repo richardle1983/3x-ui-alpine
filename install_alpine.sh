@@ -138,7 +138,6 @@ install_x-ui() {
     chmod +x /usr/bin/x-ui
     wget --no-check-certificate -O /usr/local/x-ui/DockerEntrypoint.sh https://raw.githubusercontent.com/56idc/3x-ui-alpine/main/DockerEntrypoint.sh
     chmod +x /usr/local/x-ui/DockerEntrypoint.sh
-    config_after_install
     ./DockerEntrypoint.sh
     echo -e "${green}x-ui ${tag_version}${plain} installation finished, it is running now..."
     echo -e ""
