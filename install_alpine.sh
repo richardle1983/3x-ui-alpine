@@ -119,6 +119,7 @@ install_x-ui() {
     fi
 
     if [[ -e /app/bin/ ]]; then
+	rc-service x-ui stop
 	rm /app/* -rf
 	rm /usr/bin/x-ui
  	rm /etc/init.d/x-ui
@@ -140,7 +141,8 @@ install_x-ui() {
 	config_after_install
     export XRAY_VMESS_AEAD_FORCED="false"
     fail2ban-client -x start
-    nohup ./x-ui >/dev/null 2>&1 &
+	rc-service x-ui start
+	rc-update add x-ui
     echo -e "${green}x-ui ${tag_version}${plain} installation finished, it is running now..."
     echo -e ""
     echo -e "x-ui control menu usages: "
