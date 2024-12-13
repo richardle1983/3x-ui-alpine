@@ -86,8 +86,12 @@ config_after_install() {
 }
 
 install_x-ui() {
-    cd /app/
-
+    if [[ -e /app/ ]]; then
+      cd /app/
+    else
+      mkdir /app
+      cd /app/
+    fi
     if [ $# == 0 ]; then
         tag_version=$(curl -Ls "https://api.github.com/repos/56idc/3x-ui-alpine/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
         if [[ ! -n "$tag_version" ]]; then
@@ -119,10 +123,13 @@ install_x-ui() {
     fi
 
     if [[ -e /app/bin/ ]]; then
+      rc-service x-ui stop
+      rc-update del x-ui
       pgrep -f x-ui | xargs -r kill -9
       rm /app/bin -rf
       rm /app/x-ui
       rm /usr/bin/x-ui
+      rm /etc/init.d/x-ui
       fail2ban-client -x stop
     fi
 
@@ -135,8 +142,11 @@ install_x-ui() {
     chmod +x x-ui bin/xray-linux-amd64
     wget --no-check-certificate -O /usr/bin/x-ui https://raw.githubusercontent.com/56idc/3x-ui-alpine/main/x-ui.sh
     chmod +x /usr/bin/x-ui
+    wget --no-check-certificate -O /etc/init.d/x-ui https://raw.githubusercontent.com/56idc/3x-ui-alpine/main/x-ui.rc
+    chmod +x /etc/init.d/x-ui
     config_after_install
     export XRAY_VMESS_AEAD_FORCED="false"
+    rc-update add x-ui
     fail2ban-client -x start
     nohup /app/x-ui >/dev/null 2>&1 &
     echo -e "${green}x-ui ${tag_version}${plain} installation finished, it is running now..."
