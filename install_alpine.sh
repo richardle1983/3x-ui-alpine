@@ -119,6 +119,7 @@ install_x-ui() {
     fi
 
     if pgrep -f x-ui > /dev/null; then
+      echo "PID exists"
       pgrep -f x-ui | xargs -r kill -9
       rc-service x-ui stop
       rc-update del x-ui
