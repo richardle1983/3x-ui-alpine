@@ -12,30 +12,4 @@ description="Custom service for ${name}"
 
 depend() {
     need net
-    after sshd
-}
-
-start_pre() {
-    ebegin "Preparing to start ${name}"
-    eend $?
-}
-
-start() {
-    ebegin "Starting ${name}"
-    start-stop-daemon --start --exec ${command}
-    eend $?
-}
-
-stop() {
-    ebegin "Stopping ${name}"
-    start-stop-daemon --stop --exec ${command}
-    eend $?
-}
-
-restart() {
-    ebegin "Restarting ${name}"
-    start-stop-daemon --stop --exec ${command}
-    sleep 1
-    start-stop-daemon --start --exec ${command}
-    eend $?
 }
