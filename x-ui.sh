@@ -38,71 +38,10 @@ echo "The OS release is: $release"
 os_version=""
 os_version=$(grep "^VERSION_ID" /etc/os-release | cut -d '=' -f2 | tr -d '"' | tr -d '.')
 
-if [[ "${release}" == "arch" ]]; then
-    echo "Your OS is Arch Linux"
-elif [[ "${release}" == "parch" ]]; then
-    echo "Your OS is Parch Linux"
-elif [[ "${release}" == "manjaro" ]]; then
-    echo "Your OS is Manjaro"
-elif [[ "${release}" == "armbian" ]]; then
-    echo "Your OS is Armbian"
-elif [[ "${release}" == "alpine" ]]; then
+if [[ "${release}" == "alpine" ]]; then
     echo "Your OS is Alpine Linux"
-elif [[ "${release}" == "opensuse-tumbleweed" ]]; then
-    echo "Your OS is OpenSUSE Tumbleweed"
-elif [[ "${release}" == "openEuler" ]]; then
-    if [[ ${os_version} -lt 2203 ]]; then
-        echo -e "${red} Please use OpenEuler 22.03 or higher ${plain}\n" && exit 1
-    fi
-elif [[ "${release}" == "centos" ]]; then
-    if [[ ${os_version} -lt 8 ]]; then
-        echo -e "${red} Please use CentOS 8 or higher ${plain}\n" && exit 1
-    fi
-elif [[ "${release}" == "ubuntu" ]]; then
-    if [[ ${os_version} -lt 2004 ]]; then
-        echo -e "${red} Please use Ubuntu 20 or higher version!${plain}\n" && exit 1
-    fi
-elif [[ "${release}" == "fedora" ]]; then
-    if [[ ${os_version} -lt 36 ]]; then
-        echo -e "${red} Please use Fedora 36 or higher version!${plain}\n" && exit 1
-    fi
-elif [[ "${release}" == "amzn" ]]; then
-    if [[ ${os_version} != "2023" ]]; then
-        echo -e "${red} Please use Amazon Linux 2023!${plain}\n" && exit 1
-    fi
-elif [[ "${release}" == "debian" ]]; then
-    if [[ ${os_version} -lt 11 ]]; then
-        echo -e "${red} Please use Debian 11 or higher ${plain}\n" && exit 1
-    fi
-elif [[ "${release}" == "almalinux" ]]; then
-    if [[ ${os_version} -lt 80 ]]; then
-        echo -e "${red} Please use AlmaLinux 8.0 or higher ${plain}\n" && exit 1
-    fi
-elif [[ "${release}" == "rocky" ]]; then
-    if [[ ${os_version} -lt 8 ]]; then
-        echo -e "${red} Please use Rocky Linux 8 or higher ${plain}\n" && exit 1
-    fi
-elif [[ "${release}" == "ol" ]]; then
-    if [[ ${os_version} -lt 8 ]]; then
-        echo -e "${red} Please use Oracle Linux 8 or higher ${plain}\n" && exit 1
-    fi
 else
     echo -e "${red}Your operating system is not supported by this script.${plain}\n"
-    echo "Please ensure you are using one of the following supported operating systems:"
-    echo "- Ubuntu 20.04+"
-    echo "- Debian 11+"
-    echo "- CentOS 8+"
-    echo "- OpenEuler 22.03+"
-    echo "- Fedora 36+"
-    echo "- Arch Linux"
-    echo "- Parch Linux"
-    echo "- Manjaro"
-    echo "- Armbian"
-    echo "- AlmaLinux 8.0+"
-    echo "- Rocky Linux 8+"
-    echo "- Oracle Linux 8+"
-    echo "- OpenSUSE Tumbleweed"
-    echo "- Amazon Linux 2023"
     exit 1
 fi
 
@@ -142,7 +81,7 @@ before_show_menu() {
 }
 
 install() {
-    bash <(curl -Ls https://raw.githubusercontent.com/56idc/3x-ui-alpine/master/install_alpine.sh)
+    bash <(curl -Ls https://raw.githubusercontent.com/56idc/3x-ui-alpine/main/install_alpine.sh)
     if [[ $? == 0 ]]; then
         if [[ $# == 0 ]]; then
             start
@@ -161,7 +100,7 @@ update() {
         fi
         return 0
     fi
-    bash <(curl -Ls https://raw.githubusercontent.com/56idc/3x-ui-alpine/master/install_alpine.sh)
+    bash <(curl -Ls https://raw.githubusercontent.com/56idc/3x-ui-alpine/main/install_alpine.sh)
     if [[ $? == 0 ]]; then
         LOGI "Update is complete, Panel has automatically restarted "
         before_show_menu
@@ -179,7 +118,7 @@ update_menu() {
         return 0
     fi
 
-    wget --no-check-certificate -O /usr/bin/x-ui https://raw.githubusercontent.com/56idc/3x-ui-alpine/master/x-ui.sh
+    wget --no-check-certificate -O /usr/bin/x-ui https://raw.githubusercontent.com/56idc/3x-ui-alpine/main/x-ui-alpine.sh
     chmod +x /usr/bin/x-ui
 
     if [[ $? == 0 ]]; then
@@ -192,7 +131,7 @@ update_menu() {
 }
 
 legacy_version() {
-    echo "Enter the panel version (like 2.4.8):"
+    echo "Enter the panel version (like 2.4.0):"
     read tag_version
 
     if [ -z "$tag_version" ]; then
@@ -200,7 +139,7 @@ legacy_version() {
         exit 1
     fi
     # Use the entered panel version in the download link
-    install_command="bash <(curl -Ls "https://raw.githubusercontent.com/56idc/3x-ui-alpine/v$tag_version/install.sh") v$tag_version"
+    install_command="bash <(curl -Ls "https://raw.githubusercontent.com/56idc/3x-ui-alpine/v$tag_version/install_alpine.sh") v$tag_version"
 
     echo "Downloading and installing panel version $tag_version..."
     eval $install_command
@@ -220,16 +159,15 @@ uninstall() {
         fi
         return 0
     fi
-      pgrep -f x-ui | xargs -r kill -9
-      rm /app/bin -rf
-      rm /app/x-ui
-      rm /usr/bin/x-ui
-	  rm /usr/x-ui -rf
-
+      rc-update del x-ui
+      rc-service x-ui stop
+      rm /usr/local/x-ui/ -rf
+      rm /etc/init.d/x-ui
+      rm /etc/x-ui/ -rf
     echo ""
     echo -e "Uninstalled Successfully.\n"
     echo "If you need to install this panel again, you can use below command:"
-    echo -e "${green}bash <(curl -Ls https://raw.githubusercontent.com/56idc/3x-ui-alpine/master/install_alpine.sh)${plain}"
+    echo -e "${green}bash <(curl -Ls https://raw.githubusercontent.com/56idc/3x-ui-alpine/main/install_alpine.sh)${plain}"
     echo ""
     # Trap the SIGTERM signal
     trap delete_script SIGTERM
@@ -248,8 +186,8 @@ reset_user() {
     [[ -z $config_account ]] && config_account=$(date +%s%N | md5sum | cut -c 1-8)
     read -rp "Please set the login password [default is a random password]: " config_password
     [[ -z $config_password ]] && config_password=$(date +%s%N | md5sum | cut -c 1-8)
-    /app/x-ui setting -username ${config_account} -password ${config_password} >/dev/null 2>&1
-    /app/x-ui setting -remove_secret >/dev/null 2>&1
+    /usr/local/x-ui/x-ui setting -username ${config_account} -password ${config_password} >/dev/null 2>&1
+    /usr/local/x-ui/x-ui setting -remove_secret >/dev/null 2>&1
     echo -e "Panel login username has been reset to: ${green} ${config_account} ${plain}"
     echo -e "Panel login password has been reset to: ${green} ${config_password} ${plain}"
     echo -e "${yellow} Panel login secret token disabled ${plain}"
@@ -275,7 +213,7 @@ reset_webbasepath() {
     config_webBasePath=$(gen_random_string 10)
 
     # Apply the new web base path setting
-    /app/x-ui setting -webBasePath "${config_webBasePath}" >/dev/null 2>&1
+    /usr/local/x-ui/x-ui setting -webBasePath "${config_webBasePath}" >/dev/null 2>&1
     
     echo -e "Web base path has been reset to: ${green}${config_webBasePath}${plain}"
     echo -e "${green}Please use the new web base path to access the panel.${plain}"
@@ -290,13 +228,13 @@ reset_config() {
         fi
         return 0
     fi
-    /app/x-ui setting -reset
+    /usr/local/x-ui/x-ui setting -reset
     echo -e "All panel settings have been reset to default."
     restart
 }
 
 check_config() {
-    local info=$(/app/x-ui setting -show true)
+    local info=$(/usr/local/x-ui/x-ui setting -show true)
     if [[ $? != 0 ]]; then
         LOGE "get current settings error, please check logs"
         show_menu
@@ -306,7 +244,7 @@ check_config() {
 
     local existing_webBasePath=$(echo "$info" | grep -Eo 'webBasePath: .+' | awk '{print $2}')
     local existing_port=$(echo "$info" | grep -Eo 'port: .+' | awk '{print $2}')
-    local existing_cert=$(/app/x-ui setting -getCert true | grep -Eo 'cert: .+' | awk '{print $2}')
+    local existing_cert=$(/usr/local/x-ui/x-ui setting -getCert true | grep -Eo 'cert: .+' | awk '{print $2}')
     local server_ip=$(curl -s https://api.ipify.org)
 
     if [[ -n "$existing_cert" ]]; then
@@ -328,7 +266,7 @@ set_port() {
         LOGD "Cancelled"
         before_show_menu
     else
-        /app/x-ui setting -port ${port}
+        /usr/local/x-ui/x-ui setting -port ${port}
         echo -e "The port is set, Please restart the panel now, and use the new port ${green}${port}${plain} to access web panel"
         confirm_restart
     fi
@@ -340,7 +278,7 @@ start() {
         echo ""
         LOGI "Panel is running, No need to start again, If you need to restart, please select restart"
     else
-		nohup /app/x-ui >/dev/null 2>&1 &
+        rc-service x-ui start
         sleep 2
         check_status
         if [[ $? == 0 ]]; then
@@ -351,7 +289,6 @@ start() {
     fi
 
     if [[ $# == 0 ]]; then
-	
         before_show_menu
     fi
 }
@@ -362,7 +299,7 @@ stop() {
         echo ""
         LOGI "Panel stopped, No need to stop again!"
     else
-        pgrep -f x-ui | xargs -r kill -9
+        rc-service x-ui stop
         sleep 2
         check_status
         if [[ $? == 1 ]]; then
@@ -378,8 +315,9 @@ stop() {
 }
 
 restart() {
-    pgrep -f x-ui | xargs -r kill -9
-	nohup /app/x-ui >/dev/null 2>&1 &
+    rc-service x-ui stop
+	sleep 2
+	rc-service x-ui Start
     sleep 2
     check_status
     if [[ $? == 0 ]]; then
@@ -393,17 +331,19 @@ restart() {
 }
 
 status() {
-    check_status
-    if [[ $? == 0 ]]; then
-	    echo ""
-        LOGI "Panel is running!"
+    rc-service x-ui status
+    if [[ $# == 0 ]]; then
         before_show_menu
     fi
 }
 
 enable() {
-	echo ""
-    LOGI "Do not support this function!"
+    rc-update add x-ui default
+    if [[ $? == 0 ]]; then
+        LOGI "x-ui Set to boot automatically on startup successfully"
+    else
+        LOGE "x-ui Failed to set Autostart"
+    fi
 
     if [[ $# == 0 ]]; then
         before_show_menu
@@ -411,8 +351,12 @@ enable() {
 }
 
 disable() {
-	echo ""
-    LOGI "Do not support this function!"
+    rc-update del x-ui
+    if [[ $? == 0 ]]; then
+        LOGI "x-ui Autostart Cancelled successfully"
+    else
+        LOGE "x-ui Failed to cancel autostart"
+    fi
 
     if [[ $# == 0 ]]; then
         before_show_menu
@@ -430,12 +374,16 @@ show_log() {
         show_menu
         ;;
     1)
-	    echo ""
-        LOGI "Do not support this function!"
+        journalctl -u x-ui -e --no-pager -f -p debug
+        if [[ $# == 0 ]]; then
+        before_show_menu
+        fi
         ;;
     2)
-	    echo ""
-        LOGI "Do not support this function!"
+        sudo journalctl --rotate
+        sudo journalctl --vacuum-time=1s
+        echo "All Logs cleared."
+        restart
         ;;
     *)
         echo -e "${red}Invalid option. Please select a valid number.${plain}\n"
@@ -505,45 +453,33 @@ disable_bbr() {
         echo -e "${yellow}BBR is not currently enabled.${plain}"
         before_show_menu
     fi
-
-    # Replace BBR with CUBIC configurations
-    sed -i 's/net.core.default_qdisc=fq/net.core.default_qdisc=pfifo_fast/' /etc/sysctl.conf
-    sed -i 's/net.ipv4.tcp_congestion_control=bbr/net.ipv4.tcp_congestion_control=cubic/' /etc/sysctl.conf
-
-    # Apply changes
-    sysctl -p
-
-    # Verify that BBR is replaced with CUBIC
-    if [[ $(sysctl net.ipv4.tcp_congestion_control | awk '{print $3}') == "cubic" ]]; then
-        echo -e "${green}BBR has been replaced with CUBIC successfully.${plain}"
+    # Verify that BBR is enabled
+	if test -z "$(lsmod | grep tcp_bbr)"; then
+        echo -e "${yellow}BBR is not currently enabled.${plain}"
+        before_show_menu
     else
-        echo -e "${red}Failed to replace BBR with CUBIC. Please check your system configuration.${plain}"
+	  modprobe -r tcp_bbr
+	  echo -e "${yellow}BBR already disabled.${plain}"
+      before_show_menu
     fi
-
-
 }
 
 enable_bbr() {
-    if grep -q "net.core.default_qdisc=fq" /etc/sysctl.conf && grep -q "net.ipv4.tcp_congestion_control=bbr" /etc/sysctl.conf; then
-        echo -e "${green}BBR is already enabled!${plain}"
-        before_show_menu
-    fi
-
-echo "tcp_bbr" >> /etc/modules && modprobe tcp_bbr
-echo "net.ipv4.tcp_congestion_control=bbr" >> /etc/sysctl.conf
-echo "net.core.default_qdisc=fq" >> /etc/sysctl.conf
-sysctl -p
-
     # Verify that BBR is enabled
-	if test -z "$(lsmod | grep bbrxxx)"; then
-	  echo -e "${red}Failed to enable BBR. Please check your system configuration.${plain}"
+	if test -z "$(lsmod | grep tcp_bbr)"; then
+	  echo "tcp_bbr" >> /etc/modules && modprobe tcp_bbr
+	  echo "net.ipv4.tcp_congestion_control=bbr" >> /etc/sysctl.conf
+	  echo "net.core.default_qdisc=fq" >> /etc/sysctl.conf
+	  sysctl -p
+	  echo -e "${green}BBR has been enabled successfully.${plain}"
     else
-	  echo echo -e "${green}BBR has been enabled successfully.${plain}"
+	  echo -e "${green}BBR is already enabled!${plain}"
+      before_show_menu
     fi
 }
 
 update_shell() {
-    wget -O /usr/bin/x-ui -N --no-check-certificate https://raw.githubusercontent.com/56idc/3x-ui-alpine/master/x-ui.sh
+    wget -O /usr/bin/x-ui -N --no-check-certificate https://raw.githubusercontent.com/56idc/3x-ui-alpine/main/install_alpine.sh
     if [[ $? != 0 ]]; then
         echo ""
         LOGE "Failed to download script, Please check whether the machine can connect Github"
@@ -555,22 +491,30 @@ update_shell() {
     fi
 }
 
-# 0: running, 1: not running
+# 0: running, 1: not running, 2: not installed
 check_status() {
-    if pgrep -f x-ui > /dev/null; then
-      return 0
+    if [[ ! -f /etc/init.d/x-ui ]]; then
+        return 2
+    fi
+    temp=$(rc-service x-ui status | grep started)
+    if [[ "${temp}" == "* status: started" ]]; then
+        return 0
     else
-      return 1
+        return 1
     fi
 }
 
 check_enabled() {
-    return 0
+    if [[ -f /etc/init.d/x-ui ]]; then
+        return 0
+    else
+        return 1
+    fi
 }
 
 check_uninstall() {
     check_status
-    if [[ $? != 0 ]]; then
+    if [[ $? != 2 ]]; then
         echo ""
         LOGE "Panel installed, Please do not reinstall"
         if [[ $# == 0 ]]; then
@@ -584,7 +528,7 @@ check_uninstall() {
 
 check_install() {
     check_status
-    if [[ $? == 1 ]]; then
+    if [[ $? == 2 ]]; then
         echo ""
         LOGE "Please install the panel first"
         if [[ $# == 0 ]]; then
@@ -606,6 +550,9 @@ show_status() {
     1)
         echo -e "Panel state: ${yellow}Not Running${plain}"
         show_enable_status
+        ;;
+    2)
+        echo -e "Panel state: ${red}Not Installed${plain}"
         ;;
     esac
     show_xray_status
@@ -775,7 +722,7 @@ update_geo() {
     echo -e "${green}\t0.${plain} Back to Main Menu"
     read -p "Choose an option: " choice
 
-    cd /app/bin
+    cd /usr/local/x-ui/bin
 
     case "$choice" in
     0)
@@ -920,7 +867,7 @@ ssl_cert_issue_main() {
                 local webKeyFile="/root/cert/${domain}/privkey.pem"
 
                 if [[ -f "${webCertFile}" && -f "${webKeyFile}" ]]; then
-                    /app/x-ui cert -webCert "$webCertFile" -webCertKey "$webKeyFile"
+                    /usr/local/x-ui/x-ui cert -webCert "$webCertFile" -webCertKey "$webKeyFile"
                     echo "Panel paths set for domain: $domain"
                     echo "  - Certificate File: $webCertFile"
                     echo "  - Private Key File: $webKeyFile"
@@ -943,8 +890,8 @@ ssl_cert_issue_main() {
 }
 
 ssl_cert_issue() {
-    local existing_webBasePath=$(/app/x-ui setting -show true | grep -Eo 'webBasePath: .+' | awk '{print $2}')
-    local existing_port=$(/app/x-ui setting -show true | grep -Eo 'port: .+' | awk '{print $2}')
+    local existing_webBasePath=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'webBasePath: .+' | awk '{print $2}')
+    local existing_port=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'port: .+' | awk '{print $2}')
     # check for acme.sh first
     if ! command -v ~/.acme.sh/acme.sh &>/dev/null; then
         echo "acme.sh could not be found. we will install it"
@@ -1059,7 +1006,7 @@ ssl_cert_issue() {
         local webKeyFile="/root/cert/${domain}/privkey.pem"
 
         if [[ -f "$webCertFile" && -f "$webKeyFile" ]]; then
-            /app/x-ui cert -webCert "$webCertFile" -webCertKey "$webKeyFile"
+            /usr/local/x-ui/x-ui cert -webCert "$webCertFile" -webCertKey "$webKeyFile"
             LOGI "Panel paths set for domain: $domain"
             LOGI "  - Certificate File: $webCertFile"
             LOGI "  - Private Key File: $webKeyFile"
@@ -1074,8 +1021,8 @@ ssl_cert_issue() {
 }
 
 ssl_cert_issue_CF() {
-    local existing_webBasePath=$(/app/x-ui setting -show true | grep -Eo 'webBasePath: .+' | awk '{print $2}')
-    local existing_port=$(/app/x-ui setting -show true | grep -Eo 'port: .+' | awk '{print $2}')
+    local existing_webBasePath=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'webBasePath: .+' | awk '{print $2}')
+    local existing_port=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'port: .+' | awk '{print $2}')
     LOGI "****** Instructions for Use ******"
     LOGI "Follow the steps below to complete the process:"
     LOGI "1. Cloudflare Registered E-mail."
@@ -1176,7 +1123,7 @@ ssl_cert_issue_CF() {
             local webKeyFile="${certPath}/${CF_Domain}/privkey.pem"
 
             if [[ -f "$webCertFile" && -f "$webKeyFile" ]]; then
-                /app/x-ui cert -webCert "$webCertFile" -webCertKey "$webKeyFile"
+                /usr/local/x-ui/x-ui cert -webCert "$webCertFile" -webCertKey "$webKeyFile"
                 LOGI "Panel paths set for domain: $CF_Domain"
                 LOGI "  - Certificate File: $webCertFile"
                 LOGI "  - Private Key File: $webKeyFile"
@@ -1510,11 +1457,11 @@ remove_iplimit() {
 
 SSH_port_forwarding() {
     local server_ip=$(curl -s https://api.ipify.org)
-    local existing_webBasePath=$(/app/x-ui setting -show true | grep -Eo 'webBasePath: .+' | awk '{print $2}')
-    local existing_port=$(/app/x-ui setting -show true | grep -Eo 'port: .+' | awk '{print $2}')
-    local existing_listenIP=$(/app/x-ui setting -getListen true | grep -Eo 'listenIP: .+' | awk '{print $2}')
-    local existing_cert=$(/app/x-ui setting -getCert true | grep -Eo 'cert: .+' | awk '{print $2}')
-    local existing_key=$(/app/x-ui setting -getCert true | grep -Eo 'key: .+' | awk '{print $2}')
+    local existing_webBasePath=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'webBasePath: .+' | awk '{print $2}')
+    local existing_port=$(/usr/local/x-ui/x-ui setting -show true | grep -Eo 'port: .+' | awk '{print $2}')
+    local existing_listenIP=$(/usr/local/x-ui/x-ui setting -getListen true | grep -Eo 'listenIP: .+' | awk '{print $2}')
+    local existing_cert=$(/usr/local/x-ui/x-ui setting -getCert true | grep -Eo 'cert: .+' | awk '{print $2}')
+    local existing_key=$(/usr/local/x-ui/x-ui setting -getCert true | grep -Eo 'key: .+' | awk '{print $2}')
 
     local config_listenIP=""
     local listen_choice=""
@@ -1555,7 +1502,7 @@ SSH_port_forwarding() {
             config_listenIP="127.0.0.1"
             [[ "$listen_choice" == "2" ]] && read -p "Enter custom IP to listen on: " config_listenIP
 
-            /app/x-ui setting -listenIP "${config_listenIP}" >/dev/null 2>&1
+            /usr/local/x-ui/x-ui setting -listenIP "${config_listenIP}" >/dev/null 2>&1
             echo -e "${green}listen IP has been set to ${config_listenIP}.${plain}"
             echo -e "\n${green}SSH Port Forwarding Configuration:${plain}"
             echo -e "Standard SSH command:"
@@ -1571,7 +1518,7 @@ SSH_port_forwarding() {
         fi
         ;;
     2)
-        /app/x-ui setting -listenIP 0.0.0.0 >/dev/null 2>&1
+        /usr/local/x-ui/x-ui setting -listenIP 0.0.0.0 >/dev/null 2>&1
         echo -e "${green}Listen IP has been cleared.${plain}"
         restart
         ;;
