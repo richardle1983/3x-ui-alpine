@@ -317,7 +317,7 @@ stop() {
 restart() {
     rc-service x-ui stop
 	sleep 2
-	rc-service x-ui Start
+	rc-service x-ui start
     sleep 2
     check_status
     if [[ $? == 0 ]]; then
