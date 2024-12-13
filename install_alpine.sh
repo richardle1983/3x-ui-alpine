@@ -128,6 +128,8 @@ install_x-ui() {
       rm /usr/bin/x-ui
       rm /etc/init.d/x-ui
       fail2ban-client -x stop
+    else
+      echo "PID does not exist"
     fi
 
     tar zxvf x-ui-linux-alpine.tar.gz
