@@ -470,7 +470,7 @@ check_status() {
 }
 
 check_enabled() {
-    if [[ -f /etc/init.d/x-ui ]]; then
+    if rc-update show | grep -q "x-ui"; then
         return 0
     else
         return 1
