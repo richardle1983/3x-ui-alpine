@@ -1,11 +1,14 @@
-# 3x-ui-alpine
-本项目从3x-ui官方版本移植到alpine系统
+# 3x-ui-alpines项目说明: 
+本项目从3x-ui官方版本移植到Alpine系统, 面板功能与官方版本完全一致, 面板使用说明请参考官方文档.
+```
+https://github.com/MHSanaei/3x-ui
+```
 
+# 一键安装
 ```
 bash <(curl -Ls https://raw.githubusercontent.com/56idc/3x-ui-alpine/master/install_alpine.sh)
 ```
-
-  ```
+# 官方功能移植列表:
   1. Install - 安装: 已完成(2024/12/16)
   2. Update - 更新: 已完成(2024/12/16)
   3. Update Menu - 更新主菜单: 已完成(2024/12/16)
@@ -36,4 +39,7 @@ bash <(curl -Ls https://raw.githubusercontent.com/56idc/3x-ui-alpine/master/inst
   23. Enable BBR - BBR功能: 已完成(2024/12/16)
   24. Update Geo Files - 更新Geo文件: 已完成(2024/12/16)
   25. Speedtest by Ookla - 速度测试: 已完成(2024/12/16)
-```
+
+## log 2024/12/16
+1, 翻译中文菜单
+2, 移植部分功能列表
