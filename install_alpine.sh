@@ -124,9 +124,9 @@ install_x-ui() {
       fail2ban-client -x stop
       rm /usr/local/x-ui/ -rf
       rm /etc/init.d/x-ui
-	  if [[ -e /app/bin/ ]]
+	  if [[ -e /app/bin/ ]]; then
 	    pgrep -f x-ui | xargs -r kill -9
-        rm /app -rf
+            rm /app -rf
 	  fi
     fi
 
