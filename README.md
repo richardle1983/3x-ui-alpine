@@ -41,5 +41,5 @@ bash <(curl -Ls https://raw.githubusercontent.com/56idc/3x-ui-alpine/master/inst
   25. Speedtest by Ookla - 速度测试(Ookla): 开发中......
 
 ## log 2024/12/16
-1, 翻译中文菜单
-2, 移植部分功能列表
+1. 翻译中文菜单
+2. 移植部分功能列表
